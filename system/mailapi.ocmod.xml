@@ -84,9 +84,14 @@
                 <label class="col-sm-2 control-label">Working</label>
                 <div class="col-sm-10">
                   <?php if($gmail_working): ?>
-                    <span class="label label-success">True</span>
+                    <h3>
+                      <span class="label label-success">True</span>
+                      <a href="<?php echo $revokeURL; ?>" class="btn btn-warning">Revoke Credentials</a>
+                    </h3>
                   <?php else: ?>
+                  <h3>
                     <span class="label label-danger">False</span>
+                  </h3>
                   <?php endif; ?>
                 </div>
               </div>
@@ -132,7 +137,15 @@
               $data['config_gmailapi_authCode'] = $this->config->get('config_gmailapi_authCode');
             }
 
-            $data['gmail_working'] =  $gmailapi->isWorking();
+            if($gmailapi->isWorking()){
+              $data['revokeURL'] = $this->url->link('setting/setting', 'revokeToken=1&token=' . $this->session->data['token'], true);
+              
+              if(isset($this->request->get['revokeToken']) && $this->request->get['revokeToken'] == "1"){
+                $gmailapi->revokeCredentials();
+                $data['config_gmailapi_authCode'] = "";
+              }
+              $data['gmail_working'] =  $gmailapi->isWorking();
+            }
           }
           // end gmail api section
         ]]>

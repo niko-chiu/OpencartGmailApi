@@ -19,9 +19,8 @@ Email : nikosychiu@gmail.com
 class GmailApi{
     private $client;
     private $APPLICATION_NAME = 'GMAIL API';
-    private $CREDENTIALS_PATH = DIR_SYSTEM.".credentials/gmail-php-quickstart.json";
-    private $CLIENT_SECRET_PATH = DIR_SYSTEM."client_secret.json";
-    private $credentialsPath;
+    private $CREDENTIALS_PATH = DIR_SYSTEM."storage/.credentials/gmail-php-quickstart.json";
+    private $CLIENT_SECRET_PATH = DIR_SYSTEM."storage/client_secret.json";
 	private $SCOPES;
     private $GMAIL_API_AUTH_CODE = "";
 
@@ -35,9 +34,6 @@ class GmailApi{
         $this->SCOPES = implode(' ', [
 			Google_Service_Gmail::GMAIL_SEND
 		]);
-
-		// Load previously authorized credentials from a file.
-        $this->credentialsPath = $this->expandHomeDirectory($this->CREDENTIALS_PATH);
 
 		$this->makeClient($clientID, $secret, $redirectUri);
 
@@ -88,7 +84,7 @@ class GmailApi{
 	* @return boolean
 	*/
 	public function checkCredentials(){
-		return file_exists($this->credentialsPath);
+		return file_exists($this->CREDENTIALS_PATH);
 	}
 
 	/**
@@ -103,21 +99,30 @@ class GmailApi{
             $accessToken = $this->client->fetchAccessTokenWithAuthCode($this->GMAIL_API_AUTH_CODE);
 
             // Store the credentials to disk.
-            if(!file_exists(dirname($this->credentialsPath))) {
-                mkdir(dirname($this->credentialsPath), 0700, true);
+            if(!file_exists(dirname($this->CREDENTIALS_PATH))) {
+                mkdir(dirname($this->CREDENTIALS_PATH), 0700, true);
             }
 
-            file_put_contents($this->credentialsPath, json_encode($accessToken));
+            file_put_contents($this->CREDENTIALS_PATH, json_encode($accessToken));
         }
     }
+
+	/**
+	*	Remove the credentials file
+	*/
+	public function revokeCredentials(){
+		if(file_exists($this->CREDENTIALS_PATH)){
+			unlink($this->CREDENTIALS_PATH);
+		}
+	}
 
 	/**
 	* Refresh the access token
 	*/
 	public function refreshAccessToken(){
 		if ($this->checkCredentials()) {
-			$accessToken = json_decode(file_get_contents($this->credentialsPath), true);
-			
+			$accessToken = json_decode(file_get_contents($this->CREDENTIALS_PATH), true);
+
 			$this->client->setAccessToken($accessToken);
 
 			// Refresh the token if it's expired.
@@ -126,19 +131,6 @@ class GmailApi{
 				file_put_contents($this->CREDENTIALS_PATH, json_encode($this->client->getAccessToken()));
 			}
         }
-	}
-
-	/**
-	* Expands the home directory alias '~' to the full path.
-	* @param string $path the path to expand.
-	* @return string the expanded path.
-	*/
-	public function expandHomeDirectory($path) {
-		$homeDirectory = getenv('HOME');
-		if (empty($homeDirectory)) {
-			$homeDirectory = getenv('HOMEDRIVE') . getenv('HOMEPATH');
-		}
-		return str_replace('~', realpath($homeDirectory), $path);
 	}
 
 	/**
@@ -198,6 +190,6 @@ class GmailApi{
 	* @return Boolean
 	*/
 	public function isWorking(){
-		return !$this->client->isAccessTokenExpired();
+		return $this->checkCredentials() && !$this->client->isAccessTokenExpired();
 	}
 }
