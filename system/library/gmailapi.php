@@ -18,10 +18,11 @@ Email : nikosychiu@gmail.com
 
 class GmailApi{
     private $client;
-    private $APPLICATION_NAME = 'GMAIL API';
-    private $CREDENTIALS_PATH = DIR_SYSTEM."storage/.credentials/gmail-php-quickstart.json";
-    private $CLIENT_SECRET_PATH = DIR_SYSTEM."storage/client_secret.json";
 	private $SCOPES;
+    private $APPLICATION_NAME    = 'GMAIL API';
+    private $CREDENTIALS_PATH    = DIR_SYSTEM."storage/.credentials/gmail-php-quickstart.json";
+    private $CLIENT_SECRET_PATH  = DIR_SYSTEM."storage/client_secret.json";
+	private $CLIENT_DATA         = DIR_SYSTEM."storage/.credentials/client_data.json";
     private $GMAIL_API_AUTH_CODE = "";
 
 	/**
@@ -50,19 +51,31 @@ class GmailApi{
 		$client = new Google_Client();
 		$client->setApplicationName($this->APPLICATION_NAME);
 		$client->setScopes($this->SCOPES);
+		$client->setAccessType('offline');
+
+		if(!empty($clientID) && !empty($secret)){
+			$this->makeclientDataFile($clientID, $secret);
+		}
 
 		if(file_exists($this->CLIENT_SECRET_PATH)){
 			$client->setAuthConfig($this->CLIENT_SECRET_PATH);
 		}else{
+
+			if(empty($clientID) && empty($secret) && file_exists($CLIENT_DATA)){
+				$data = json_decode(file_get_contents($this->$CLIENT_DATA), true);
+				$clientID = $data['clientID'];
+				$secret   = $dara['secret'];
+			}
+
 			$client->setClientId($clientID);
 			$client->setClientSecret($secret);
+
 			if(empty($redirectUri))
 				$client->setRedirectUri("urn:ietf:wg:oauth:2.0:oob");
 			else
 				$client->setRedirectUri($redirectUri);
 		}
 
-		$client->setAccessType('offline');
 
 		$this->client = $client;
 	}
@@ -191,5 +204,23 @@ class GmailApi{
 	*/
 	public function isWorking(){
 		return $this->checkCredentials() && !$this->client->isAccessTokenExpired();
+	}
+
+	/**
+	* Create a file to store the clientID and secret
+	* @param String $clientID
+	* @param String $secret
+	*/
+	public function makeclientDataFile($clientID, $secret){
+		if(!file_exists(dirname($this->CREDENTIALS_PATH))) {
+			mkdir(dirname($this->CREDENTIALS_PATH), 0700, true);
+		}
+
+		unlink($this->CLIENT_DATA);
+
+		file_put_contents($this->CLIENT_DATA, json_encode([
+			"clientID" => $clientID,
+			"secret"   => $secret
+		]));
 	}
 }
