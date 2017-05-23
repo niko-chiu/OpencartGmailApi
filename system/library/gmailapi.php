@@ -22,7 +22,7 @@ class GmailApi{
     private $APPLICATION_NAME    = 'GMAIL API';
     private $CREDENTIALS_PATH    = DIR_SYSTEM."storage/.credentials/gmail-php-quickstart.json";
     private $CLIENT_SECRET_PATH  = DIR_SYSTEM."storage/client_secret.json";
-	private $CLIENT_DATA         = DIR_SYSTEM."storage/.credentials/client_data.json";
+	private $CLIENT_DATA_PATH         = DIR_SYSTEM."storage/.credentials/client_data.json";
     private $GMAIL_API_AUTH_CODE = "";
 
 	/**
@@ -61,10 +61,10 @@ class GmailApi{
 			$client->setAuthConfig($this->CLIENT_SECRET_PATH);
 		}else{
 
-			if(empty($clientID) && empty($secret) && file_exists($CLIENT_DATA)){
-				$data = json_decode(file_get_contents($this->$CLIENT_DATA), true);
+			if(empty($clientID) && empty($secret) && file_exists($this->CLIENT_DATA_PATH)){
+				$data = json_decode(file_get_contents($this->CLIENT_DATA_PATH), true);
 				$clientID = $data['clientID'];
-				$secret   = $dara['secret'];
+				$secret   = $data['secret'];
 			}
 
 			$client->setClientId($clientID);
@@ -216,9 +216,10 @@ class GmailApi{
 			mkdir(dirname($this->CREDENTIALS_PATH), 0700, true);
 		}
 
-		unlink($this->CLIENT_DATA);
+		if(file_exists($this->CLIENT_DATA_PATH))
+			unlink($this->CLIENT_DATA_PATH);
 
-		file_put_contents($this->CLIENT_DATA, json_encode([
+		file_put_contents($this->CLIENT_DATA_PATH, json_encode([
 			"clientID" => $clientID,
 			"secret"   => $secret
 		]));
