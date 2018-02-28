@@ -1,0 +1,188 @@
+<?xml version="1.0" encoding="utf-8"?>
+<modification>
+  <name>Modification Default</name>
+  <code>default</code>
+  <version>1.0</version>
+  <author>OpenCart Ltd</author>
+  <link>http://www.opencart.com</link>
+
+  <!-- "system/library/mail.php  -->
+  <file path="system/library/mail.php">
+	  <operation>
+      <search>
+        <![CDATA[
+            $boundary = '----=_NextPart_' . md5(time());
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+            // gmail api section
+            $gmail = new GmailApi();
+            $message = !empty($this->html) ? $this->html : $this->text;
+            if($gmail->sendMail($this->sender, $this->from, $to, $this->subject, $message));
+              return;
+            // end gmail api section
+        ]]>
+      </add>
+    </operation>
+  </file>
+
+
+  <!-- "admin/view/template/setting/setting.twig  -->
+  <file path="admin/view/template/setting/setting.twig">
+	  <operation>
+      <search>
+        <![CDATA[
+            <li><a href="#tab-server" data-toggle="tab">{{ tab_server }}</a></li>
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+          <!-- Gmail api section -->
+          <li><a href="#tab-gmailapi" data-toggle="tab">Gmail API</a></li>
+          <!-- end Gmail api section -->
+        ]]>
+      </add>
+    </operation>
+  </file>
+
+
+  <!-- "admin/view/template/setting/setting.twig  -->
+  <file path="admin/view/template/setting/setting.twig">
+	  <operation>
+      <search>
+        <![CDATA[
+            <div class="tab-pane" id="tab-server">
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+          <!-- Gmail api section -->
+          <div class="tab-pane" id="tab-gmailapi">
+            <fieldset>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Client ID</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" name="config_gmailapi_clientId" value="{{ config_gmailapi_clientId }}" />
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Client Secret</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" name="config_gmailapi_clientSecret" value="{{ config_gmailapi_clientSecret }}"/>
+                </div>
+              </div>
+              {% if authorization_url is defined %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Authorization Url</label>
+                <div class="col-sm-10">
+                  <a href="{{ authorization_url }}" target="_blank" class="btn btn-primary">Click me to authorize</a>
+                </div>
+              </div>
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Authorization Code</label>
+                <div class="col-sm-10">
+                  <input type="text" class="form-control" name="config_gmailapi_authCode" value="{{ config_gmailapi_authCode }}"/>
+                </div>
+              </div>
+              {% endif %}
+              <div class="form-group">
+                <label class="col-sm-2 control-label">Working</label>
+                <div class="col-sm-10">
+                  {% if gmail_working %}
+                    <h3>
+                      <span class="label label-success">True</span>
+                      <a href="{{ revokeURL }}" class="btn btn-warning">Revoke Credentials</a>
+                    </h3>
+                  {% else %}
+                  <h3>
+                    <span class="label label-danger">False</span>
+                  </h3>
+                  {% endif %}
+                </div>
+              </div>
+            </fieldset>
+          </div>
+          <!-- end Gmail api section -->
+        ]]>
+      </add>
+    </operation>
+  </file>
+
+
+<!-- "admin/controller/setting/setting.php  -->
+  <file path="admin/controller/setting/setting.php">
+	  <operation>
+      <search>
+        <![CDATA[
+          $data['header'] = $this->load->controller('common/header');
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+          // gmail api section
+          if (isset($this->request->post['config_gmailapi_clientId'])) {
+            $data['config_gmailapi_clientId'] = $this->request->post['config_gmailapi_clientId'];
+          } else {
+            $data['config_gmailapi_clientId'] = $this->config->get('config_gmailapi_clientId');
+          }
+
+          if (isset($this->request->post['config_gmailapi_clientSecret'])) {
+            $data['config_gmailapi_clientSecret'] = $this->request->post['config_gmailapi_clientSecret'];
+          } else {
+            $data['config_gmailapi_clientSecret'] = $this->config->get('config_gmailapi_clientSecret');
+          }
+
+          $data['gmail_working'] = false;
+
+          if(!empty($data['config_gmailapi_clientSecret']) && !empty($data['config_gmailapi_clientId'])){
+            $gmailapi = new GmailApi($data['config_gmailapi_clientId'], $data['config_gmailapi_clientSecret']);
+              $data["authorization_url"] = $gmailapi->getAuthCodeUrl();
+
+            if (isset($this->request->post['config_gmailapi_authCode'])) {
+              $data['config_gmailapi_authCode'] = $this->request->post['config_gmailapi_authCode'];
+            } else {
+              $data['config_gmailapi_authCode'] = $this->config->get('config_gmailapi_authCode');
+            }
+
+            if($gmailapi->isWorking()){
+              $data['revokeURL'] = $this->url->link('setting/setting', 'revokeToken=1&token=' . $this->session->data['token'], true);
+              
+              if(isset($this->request->get['revokeToken']) && $this->request->get['revokeToken'] == "1"){
+                $gmailapi->revokeCredentials();
+                $data['config_gmailapi_authCode'] = "";
+              }
+              $data['gmail_working'] =  $gmailapi->isWorking();
+            }
+          }
+          // end gmail api section
+        ]]>
+      </add>
+    </operation>
+  </file>
+
+
+<!-- "admin/controller/setting/setting.php  -->
+  <file path="admin/controller/setting/setting.php">
+	  <operation>
+      <search>
+        <![CDATA[
+            $this->model_setting_setting->editSetting('config', $this->request->post);
+        ]]>
+      </search>
+      <add position="before">
+        <![CDATA[
+          // gmail api section
+          if (isset($this->request->post['config_gmailapi_authCode']) && !empty($this->request->post['config_gmailapi_authCode'])) {
+            $gmailapi = new GmailApi($this->request->post['config_gmailapi_clientId'], $this->request->post['config_gmailapi_clientSecret']);
+            if(!$gmailapi->checkCredentials()){
+              $gmailapi->setAuthCode($this->request->post['config_gmailapi_authCode']);
+              $gmailapi->makeCredentials();
+            }
+          }
+          // end gmail api section
+        ]]>
+      </add>
+    </operation>
+  </file>
+</modification>

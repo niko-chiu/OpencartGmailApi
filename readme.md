@@ -1,4 +1,4 @@
-1. Upload all files to Opencart root folder
+1. Upload the right files to Opencart root folder
 2. Require packages from composer and add autoload file
     ```
     composer require phpmailer/phpmailer

@@ -5,6 +5,8 @@
   <version>1.0</version>
   <author>OpenCart Ltd</author>
   <link>http://www.opencart.com</link>
+
+  <!-- "system/library/mail.php  -->
   <file path="system/library/mail.php">
 	  <operation>
       <search>
@@ -25,11 +27,13 @@
     </operation>
   </file>
 
-  <file path="admin/view/template/setting/setting.tpl">
+
+  <!-- "admin/view/template/setting/setting.twig  -->
+  <file path="admin/view/template/setting/setting.twig">
 	  <operation>
       <search>
         <![CDATA[
-            <li><a href="#tab-server" data-toggle="tab"><?php echo $tab_server; ?></a></li>
+            <li><a href="#tab-server" data-toggle="tab">{{ tab_server }}</a></li>
         ]]>
       </search>
       <add position="before">
@@ -42,7 +46,9 @@
     </operation>
   </file>
 
-  <file path="admin/view/template/setting/setting.tpl">
+
+  <!-- "admin/view/template/setting/setting.twig  -->
+  <file path="admin/view/template/setting/setting.twig">
 	  <operation>
       <search>
         <![CDATA[
@@ -57,42 +63,42 @@
               <div class="form-group">
                 <label class="col-sm-2 control-label">Client ID</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" name="config_gmailapi_clientId" value="<?php echo $config_gmailapi_clientId; ?>" />
+                  <input type="text" class="form-control" name="config_gmailapi_clientId" value="{{ config_gmailapi_clientId }}" />
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label">Client Secret</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" name="config_gmailapi_clientSecret" value="<?php echo $config_gmailapi_clientSecret; ?>"/>
+                  <input type="text" class="form-control" name="config_gmailapi_clientSecret" value="{{ config_gmailapi_clientSecret }}"/>
                 </div>
               </div>
               <? if(isset($authorization_url)): ?>
               <div class="form-group">
                 <label class="col-sm-2 control-label">Authorization Url</label>
                 <div class="col-sm-10">
-                  <a href="<?php echo $authorization_url; ?>" target="_blank" class="btn btn-primary">Click me to authorize</a>
+                  <a href="{{ authorization_url }}" target="_blank" class="btn btn-primary">Click me to authorize</a>
                 </div>
               </div>
               <div class="form-group">
                 <label class="col-sm-2 control-label">Authorization Code</label>
                 <div class="col-sm-10">
-                  <input type="text" class="form-control" name="config_gmailapi_authCode" value="<?php echo $config_gmailapi_authCode; ?>"/>
+                  <input type="text" class="form-control" name="config_gmailapi_authCode" value="{{ config_gmailapi_authCode }}"/>
                 </div>
               </div>
-              <?php endif; ?>
+              <?php endif }}
               <div class="form-group">
                 <label class="col-sm-2 control-label">Working</label>
                 <div class="col-sm-10">
                   <?php if($gmail_working): ?>
                     <h3>
                       <span class="label label-success">True</span>
-                      <a href="<?php echo $revokeURL; ?>" class="btn btn-warning">Revoke Credentials</a>
+                      <a href="{{ revokeURL }}" class="btn btn-warning">Revoke Credentials</a>
                     </h3>
                   <?php else: ?>
                   <h3>
                     <span class="label label-danger">False</span>
                   </h3>
-                  <?php endif; ?>
+                  <?php endif }}
                 </div>
               </div>
             </fieldset>
@@ -103,6 +109,8 @@
     </operation>
   </file>
 
+
+<!-- "admin/controller/setting/setting.php  -->
   <file path="admin/controller/setting/setting.php">
 	  <operation>
       <search>
@@ -153,6 +161,8 @@
     </operation>
   </file>
 
+
+<!-- "admin/controller/setting/setting.php  -->
   <file path="admin/controller/setting/setting.php">
 	  <operation>
       <search>
