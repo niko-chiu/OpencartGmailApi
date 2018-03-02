@@ -6,8 +6,8 @@
   <author>OpenCart Ltd</author>
   <link>http://www.opencart.com</link>
 
-  <!-- "system/library/mail.php  -->
-  <file path="system/library/mail.php">
+  <!-- "system/library/mail/mail.php  -->
+  <file path="system/library/mail/mail.php">
 	  <operation>
       <search>
         <![CDATA[
@@ -17,7 +17,7 @@
       <add position="before">
         <![CDATA[
             // gmail api section
-            $gmail = new GmailApi();
+            $gmail = new \GmailApi();
             $message = !empty($this->html) ? $this->html : $this->text;
             if($gmail->sendMail($this->sender, $this->from, $to, $this->subject, $message));
               return;

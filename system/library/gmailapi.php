@@ -1,4 +1,6 @@
 <?php
+use PHPMailer\PHPMailer\PHPMailer;
+use PHPMailer\PHPMailer\Exception;
 /*
 
 Creator : Niko Chiu
@@ -18,11 +20,11 @@ Email : nikosychiu@gmail.com
 
 class GmailApi{
     private $client;
-	private $SCOPES;
+		private $SCOPES;
     private $APPLICATION_NAME    = 'GMAIL API';
     private $CREDENTIALS_PATH    = DIR_SYSTEM."storage/.credentials/gmail-php-quickstart.json";
     private $CLIENT_SECRET_PATH  = DIR_SYSTEM."storage/client_secret.json";
-	private $CLIENT_DATA_PATH         = DIR_SYSTEM."storage/.credentials/client_data.json";
+		private $CLIENT_DATA_PATH         = DIR_SYSTEM."storage/.credentials/client_data.json";
     private $GMAIL_API_AUTH_CODE = "";
 
 	/**
