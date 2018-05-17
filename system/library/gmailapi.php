@@ -65,7 +65,7 @@ class GmailApi{
 
 			if(empty($clientID) && empty($secret) && file_exists($this->CLIENT_DATA_PATH)){
 				$data = json_decode(file_get_contents($this->CLIENT_DATA_PATH), true);
-				$clientID = $data['clientID'];
+				$clientID = $data['client_id'];
 				$secret   = $data['secret'];
 			}
 
@@ -222,7 +222,7 @@ class GmailApi{
 			unlink($this->CLIENT_DATA_PATH);
 
 		file_put_contents($this->CLIENT_DATA_PATH, json_encode([
-			"clientID" => $clientID,
+			"client_id" => $clientID,
 			"secret"   => $secret
 		]));
 	}
