@@ -215,7 +215,7 @@ class GmailApi{
 	*/
 	public function makeclientDataFile($clientID, $secret){
 		if(!file_exists(dirname($this->CREDENTIALS_PATH))) {
-			mkdir(dirname($this->CREDENTIALS_PATH), 0700, true);
+			mkdir(dirname($this->CREDENTIALS_PATH), 0770, true);
 		}
 
 		if(file_exists($this->CLIENT_DATA_PATH))
