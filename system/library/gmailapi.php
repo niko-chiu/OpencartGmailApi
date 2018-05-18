@@ -115,7 +115,7 @@ class GmailApi{
 
             // Store the credentials to disk.
             if(!file_exists(dirname($this->CREDENTIALS_PATH))) {
-                mkdir(dirname($this->CREDENTIALS_PATH), 0700, true);
+                mkdir(dirname($this->CREDENTIALS_PATH), 0770, true);
             }
 
             file_put_contents($this->CREDENTIALS_PATH, json_encode($accessToken));
