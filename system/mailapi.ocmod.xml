@@ -19,8 +19,8 @@
             // gmail api section
             $gmail = new \GmailApi();
             $message = !empty($this->html) ? $this->html : $this->text;
-            if($gmail->sendMail($this->sender, $this->from, $to, $this->subject, $message));
-              return;
+            $gmail->sendMail($this->sender, $this->from, $to, $this->subject, $message, $this->attachments);
+            return;
             // end gmail api section
         ]]>
       </add>

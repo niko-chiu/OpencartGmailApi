@@ -19,7 +19,8 @@ Email : nikosychiu@gmail.com
 
 */
 
-class GmailApi {
+class GmailApi
+{
     private $client;
     private $SCOPES;
     private $APPLICATION_NAME = 'GMAIL API';
@@ -32,7 +33,8 @@ class GmailApi {
      * @param string $secret      oauth api secret
      * @param string $redirectUri the redirect uri
      */
-    public function __construct($clientID = '', $secret = '', $redirectUri = '') {
+    public function __construct($clientID = '', $secret = '', $redirectUri = '')
+    {
         // If modifying these scopes, delete your previously saved credentials
         $this->SCOPES = implode(' ', [
             Google_Service_Gmail::GMAIL_SEND,
@@ -50,7 +52,8 @@ class GmailApi {
      * @param string $secret      oauth api secret
      * @param string $redirectUri the redirect uri
      */
-    public function makeClient($clientID, $secret, $redirectUri) {
+    public function makeClient($clientID, $secret, $redirectUri)
+    {
         $client = new Google_Client();
         $client->setApplicationName($this->APPLICATION_NAME);
         $client->setScopes($this->SCOPES);
@@ -77,7 +80,8 @@ class GmailApi {
      *
      * @return string a url to get the authorization code
      */
-    public function getAuthCodeUrl() {
+    public function getAuthCodeUrl()
+    {
         if (!empty($this->GMAIL_API_AUTH_CODE)) {
             return '';
         }
@@ -91,14 +95,16 @@ class GmailApi {
      *
      * @return bool
      */
-    public function checkCredentials() {
+    public function checkCredentials()
+    {
         return file_exists($this->CREDENTIALS_PATH);
     }
 
     /**
      * Create the credentials file.
      */
-    public function makeCredentials() {
+    public function makeCredentials()
+    {
         if (empty($this->GMAIL_API_AUTH_CODE)) {
             throw new Exception('No authorization code.');
         }
@@ -118,7 +124,8 @@ class GmailApi {
     /**
      *	Remove the credentials file.
      */
-    public function revokeCredentials() {
+    public function revokeCredentials()
+    {
         if (file_exists($this->CREDENTIALS_PATH)) {
             unlink($this->CREDENTIALS_PATH);
         }
@@ -127,7 +134,8 @@ class GmailApi {
     /**
      * Refresh the access token.
      */
-    public function refreshAccessToken() {
+    public function refreshAccessToken()
+    {
         if ($this->checkCredentials()) {
             $accessToken = json_decode(file_get_contents($this->CREDENTIALS_PATH), true);
 
@@ -144,13 +152,15 @@ class GmailApi {
     /**
      * Send the email out.
      *
-     * @param string $fromName sender name
-     * @param string $from     sender email
-     * @param string $to       receiver email
-     * @param string $subject  email subject
-     * @param string $msg      email message
+     * @param string $fromName    sender name
+     * @param string $from        sender email
+     * @param string $to          receiver email
+     * @param string $subject     email subject
+     * @param string $msg         email message
+     * @param array  $attachments email attachments
      */
-    public function sendMail($fromName, $from, $to, $subject, $msg) {
+    public function sendMail($fromName, $from, $to, $subject, $msg, $attachments)
+    {
         if (!$this->checkCredentials()) {
             throw new Exception('No credentials exists');
         }
@@ -162,6 +172,9 @@ class GmailApi {
         $mail->AddReplyTo($from, $fromName);
         $mail->Subject = $subject;
         $mail->Body = $msg;
+        foreach ($attachments as $attachment) {
+            $mail->addAttachment($attachment);
+        }
         $mail->isHTML(true);
         $mail->preSend();
         $mime = $mail->getSentMIMEMessage();
@@ -183,7 +196,8 @@ class GmailApi {
      *
      * @return bool
      */
-    public function isUserLogged() {
+    public function isUserLogged()
+    {
         return isset($_SESSION['user_id']);
     }
 
@@ -192,7 +206,8 @@ class GmailApi {
      *
      * 	@param string $authCode
      */
-    public function setAuthCode($authCode) {
+    public function setAuthCode($authCode)
+    {
         $this->GMAIL_API_AUTH_CODE = $authCode;
     }
 
@@ -201,7 +216,8 @@ class GmailApi {
      *
      * @return bool
      */
-    public function isWorking() {
+    public function isWorking()
+    {
         return $this->checkCredentials() && !$this->client->isAccessTokenExpired();
     }
 }
